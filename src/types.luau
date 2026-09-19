@@ -79,14 +79,14 @@ type t2 = mut<t1>
 -- will we allow both simple documents and non simple documents in the same datastore? maybe!
 export type GetSimpleDocument<T> = ({
 	key: string,
-	dataStore: DataStoreInterface,
+	dataStore: DataStoreAPI,
 	migrationList: MigrationList<T>,
 }) -> SimpleDocument<T>
 
 export type SimpleDocument<T> = {
 	-- Private
 	_key: string,
-	_data_store: DataStoreInterface,
+	_data_store: DataStoreAPI,
 	_migrations: MigrationList<T>,
 	-- Public
 	read readAsync: () -> Result<T?, RobloxAPIError | BackwardsCompatibilityError | CorruptionError>,
