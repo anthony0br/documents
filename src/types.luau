@@ -128,7 +128,10 @@ export type Document<T> = {
 
 -- Note: we may need to track centrally all documents being claimed.
 -- documents are unique by their store reference and key.
-export type claimDocumentAsync<T> = ({store: DataStoreAPI, key: string, migrations: MigrationList<T>?,}) -> Document<T>
+
+-- Create functions like default, but it can also run logic on first creation
+-- e.g. special bonus for players joining via certain link.
+export type claimDocumentAsync<T> = ({store: DataStoreAPI, create: (key: string) -> T, migrations: MigrationList<T>?}, key: string) -> Document<T>
 
 	--type claimAsync: (key: string, stealAfterSeconds: number?) -> ClaimResult<Document<T>>,
 	--type claimFromMemoryAsync: (key: string) -> Result<Document<T>, "BackwardsCompatibilityError" | "RobloxAPIError" | "NotInMemoryStore">
