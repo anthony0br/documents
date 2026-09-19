@@ -131,6 +131,7 @@ export type Document<T> = {
 
 -- Create functions like default, but it can also run logic on first creation
 -- e.g. special bonus for players joining via certain link.
+-- first argument is intended to stored and reused for a store.
 export type claimDocumentAsync<T> = ({store: DataStoreAPI, create: (key: string) -> T, migrations: MigrationList<T>?}, key: string) -> Document<T>
 
 	--type claimAsync: (key: string, stealAfterSeconds: number?) -> ClaimResult<Document<T>>,
