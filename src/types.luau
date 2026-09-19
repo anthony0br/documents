@@ -76,6 +76,7 @@ type t1 = immut<{
 type t2 = mut<t1>
 
 -- type of a static api for getting simpledocument objcts
+-- will we allow both simple documents and non simple documents in the same datastore? maybe!
 export type GetSimpleDocument<T> = ({
 	key: string,
 	dataStore: DataStoreInterface,
@@ -102,11 +103,11 @@ export type DocState = "Live" | "Releasing"
 export type Document<T> = {
 	-- Private
 	read _key: string,
-	read _data_store: DataStoreInterface,
+	read _data_store: DataStoreAPI,
+	read _migration_list: MigrationList<T>,
 	read _session_id: string,
 	-- instead of both is_locked and an expiry, why not just set session_expiry to 0?
 	_session_expiry: number,
-	read _migrations: MigrationList<T>,
 	read _default: T,
 	_state: DocState,
 	_data: T,
@@ -125,14 +126,12 @@ export type Document<T> = {
 	-- implement DataStore as a backup.
 }
 
-export type DocumentStore<T> = {
-	read _key: string,
-	read _dataStore: DataStoreInterface,
-	read _migrationList: MigrationList<T>,
-	read _openingKeys: { string },
-	read claimAsync: (key: string, stealAfterSeconds: number?) -> ClaimResult<Document<T>>,
-	read claimFromMemoryAsync: (key: string) -> Result<Document<T>, "BackwardsCompatibilityError" | "RobloxAPIError" | "NotInMemoryStore">
-}
+-- Note: we may need to track centrally all documents being claimed.
+-- documents are unique by their store reference and key.
+export type claimDocumentAsync<T> = ({store: DataStoreAPI, key: string, migrations: MigrationList<T>?,}) -> Document<T>
+
+	--type claimAsync: (key: string, stealAfterSeconds: number?) -> ClaimResult<Document<T>>,
+	--type claimFromMemoryAsync: (key: string) -> Result<Document<T>, "BackwardsCompatibilityError" | "RobloxAPIError" | "NotInMemoryStore">
 
 export type Ok<T> = {
 	ok: true,
@@ -160,14 +159,14 @@ export type ClaimResult<T> = Result<T, RobloxAPIError | BackwardsCompatibilityEr
 export type WriteResult<T> = Result<T, RobloxAPIError | SessionNotOwned | CorruptionError>
 export type ReadResult<T> = Result<T, RobloxAPIError | CorruptionError | BackwardsCompatibilityError>
 
-export type DataStoreInterface = {
+export type DataStoreAPI = {
 	UpdateAsync: (
-		DataStoreInterface,
+		DataStoreAPI,
 		key: string,
 		(any, DataStoreKeyInfo) -> (any, { number }?, any?)
 	) -> (any, DataStoreKeyInfo),
-	GetAsync: (DataStoreInterface, key: string, options: DataStoreGetOptions) -> (any, DataStoreKeyInfo),
-	RemoveAsync: (DataStoreInterface, key: string) -> (any, DataStoreKeyInfo),
+	GetAsync: (DataStoreAPI, key: string, options: DataStoreGetOptions) -> (any, DataStoreKeyInfo),
+	RemoveAsync: (DataStoreAPI, key: string) -> (any, DataStoreKeyInfo),
 }
 
 export type HookEvent = "Open" | "Close" | "Update" | "Read"

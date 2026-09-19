@@ -1,0 +1,6 @@
+-- will contain functions for generating session fields and for checking them
+-- locks will have various states such as
+-- not locked by anybody (unowned), locked by us, locked by someone else
+-- and will typically depend on an expiry time and unique session id
+-- we will provide a method of generating and possibly retaining the unique
+-- session id here.
